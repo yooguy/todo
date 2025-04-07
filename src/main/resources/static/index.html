@@ -1,168 +1,106 @@
 <!DOCTYPE html>
-<html lang="en" x-data="todoApp()" class="p-8">
+<html lang="en" x-data="todoApp()" class="bg-gray-50 min-h-screen p-8">
 <head>
   <meta charset="UTF-8">
-  <title>Alpine.js + Material 3 Todo List</title>
+  <title>Modern To-do List Dashboard</title>
 
-  <!-- Roboto Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Material 3 Web Components -->
-  <script type="importmap">
-    {
-      "imports": {
-        "@material/web/": "https://esm.run/@material/web/"
-      }
-    }
-  </script>
-  <script type="module">
-    import '@material/web/all.js';
-    import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
-    document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
-  </script>
+  <!-- Shoelace -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/shoelace.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/themes/light.css">
 
   <!-- Alpine.js -->
   <script src="https://unpkg.com/alpinejs@3.13.0" defer></script>
 
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-    }
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    .todo-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-
-    .todo-table th, .todo-table td {
-      border: 1px solid #ddd;
-      padding: 0.75rem;
-      text-align: center;
-      vertical-align: middle;
-    }
-
-    .todo-table th {
-      background-color: #f0f0f0;
-      color: #333;
-      font-weight: bold;
-    }
-
-    .todo-table td {
-      background-color: #fff;
-    }
-
-    .todo-table tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-
-    .form-row md-outlined-text-field,
-    .form-row input[type="date"],
-    .form-row md-filled-button {
-      flex: 1;
-      min-width: 150px;
-    }
-
-    input[type="date"] {
-      padding: 0.75rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-family: 'Roboto', sans-serif;
-    }
-
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-top: 1rem;
-    }
-  </style>
+  <!-- SheetJS (xlsx 라이브러리) -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
 </head>
 
-<body>
+<body class="font-sans">
 
-<h1 class="md-typescale-display-medium mb-6">📝 To-do List</h1>
+<div class="max-w-5xl mx-auto" x-init="fetchTodos()">
 
-<!-- 입력 폼 -->
-<div class="form-row">
-  <md-outlined-text-field label="New task" x-model="newTask"></md-outlined-text-field>
-  <input type="date" x-model="startDate">
-  <input type="date" x-model="endDate">
-  <md-filled-button @click="addTodo" ?disabled="newTask.length === 0">
-    Add
-  </md-filled-button>
-</div>
+  <!-- 헤더 -->
+  <div class="flex items-center gap-3 mb-8">
+    <img src="https://emojicdn.elk.sh/📝" class="w-10 h-10">
+    <h1 class="text-3xl font-bold">To-do List</h1>
+  </div>
 
-<!-- To-do List Table -->
-<div class="card">
-  <table class="todo-table">
-    <thead>
-    <tr>
-      <th>Task</th>
-      <th>Start Date</th>
-      <th>End Date</th>
-      <th>Status</th>
-      <th>Toggle</th>
-      <th>Actions</th>
-    </tr>
-    </thead>
+  <!-- 입력 폼 -->
+  <div class="flex flex-wrap gap-2 items-center mb-6">
+    <sl-input placeholder="New task..." class="flex-1 min-w-[150px]" x-model="newTask"></sl-input>
+    <sl-input type="date" label="Start Date" class="flex-1 min-w-[150px]" x-model="startDate"></sl-input>
+    <sl-input type="date" label="End Date" class="flex-1 min-w-[150px]" x-model="endDate"></sl-input>
 
-    <tbody>
-    <template x-for="todo in todos" :key="todo.id">
+    <div class="flex gap-2">
+      <sl-button variant="primary" size="small" @click="createTodo()" :disabled="newTask.length === 0">
+        ➕ Add
+      </sl-button>
+      <sl-button variant="success" size="small" @click="downloadExcel()">
+        📥 Download
+      </sl-button>
+    </div>
+  </div>
+
+  <!-- Todo 리스트 테이블 -->
+  <sl-card class="rounded-lg shadow p-6 bg-white">
+    <table class="w-full text-sm table-auto">
+      <thead class="bg-gray-100 text-gray-700">
       <tr>
-        <td :class="todo.completed ? 'text-gray-400 line-through' : ''" x-text="todo.title"></td>
-        <td x-text="todo.startDate || '-'"></td>
-        <td x-text="todo.endDate || '-'"></td>
-        <td>
-          <md-filled-button disabled>
-            <span x-text="todo.completed ? 'Completed' : 'Pending'"></span>
-          </md-filled-button>
-        </td>
-        <td>
-          <md-switch
-                  :selected="todo.completed"
-                  @input="toggleTodo(todo.id)"
-          ></md-switch>
-        </td>
-        <td>
-          <md-outlined-button @click="confirmDelete(todo.id)">
-            Delete
-          </md-outlined-button>
+        <th class="px-4 py-3 text-left">Task</th>
+        <th class="px-4 py-3 text-center">Start Date</th>
+        <th class="px-4 py-3 text-center">End Date</th>
+        <th class="px-4 py-3 text-center">Status</th>
+        <th class="px-4 py-3 text-center">Toggle</th>
+        <th class="px-4 py-3 text-center">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <template x-for="todo in todos" :key="todo.id">
+        <tr class="border-b">
+          <td class="px-4 py-3" :class="todo.completed ? 'text-gray-400 line-through' : ''" x-text="todo.title"></td>
+          <td class="px-4 py-3 text-center" x-text="todo.startDate || '-'"></td>
+          <td class="px-4 py-3 text-center" x-text="todo.endDate || '-'"></td>
+          <td class="px-4 py-3 text-center">
+            <sl-tag size="small" :variant="todo.completed ? 'success' : 'warning'">
+              <span x-text="todo.completed ? 'Completed' : 'Pending'"></span>
+            </sl-tag>
+          </td>
+          <td class="px-4 py-3 text-center">
+            <sl-switch :checked="todo.completed" @sl-change="toggleTodo(todo.id)" class="scale-90"></sl-switch>
+          </td>
+          <td class="px-4 py-3 text-center">
+            <sl-button variant="danger" size="small" @click="confirmDelete(todo.id)">
+              🗑️
+            </sl-button>
+          </td>
+        </tr>
+      </template>
+
+      <tr x-show="todos.length === 0">
+        <td colspan="6" class="text-center text-gray-400 py-6">
+          No tasks yet. Add a new task!
         </td>
       </tr>
-    </template>
+      </tbody>
+    </table>
+  </sl-card>
 
-    <tr x-show="todos.length === 0">
-      <td colspan="6" class="text-center text-gray-400 py-4">
-        No tasks yet. Add a new task!
-      </td>
-    </tr>
-    </tbody>
-  </table>
+  <!-- 삭제 확인 다이얼로그 -->
+  <sl-dialog label="Confirm Delete" class="dialog-delete" x-ref="deleteDialog">
+    <p>Are you sure you want to delete this task?</p>
+    <div slot="footer" class="flex justify-end gap-2">
+      <sl-button @click="$refs.deleteDialog.hide()">Cancel</sl-button>
+      <sl-button variant="danger" @click="deleteConfirmed()">
+        Delete
+      </sl-button>
+    </div>
+  </sl-dialog>
+
 </div>
 
-<!-- 삭제 확인 다이얼로그 -->
-<md-dialog id="deleteDialog">
-  <div slot="headline">Confirm Delete</div>
-  <div>Are you sure you want to delete this task?</div>
-  <div slot="actions">
-    <md-text-button dialogAction="cancel">Cancel</md-text-button>
-    <md-filled-button @click="deleteConfirmed()">Delete</md-filled-button>
-  </div>
-</md-dialog>
-
-</body>
-
-<!-- Alpine.js 컴포넌트 -->
 <script>
   function todoApp() {
     return {
@@ -177,7 +115,7 @@
         this.todos = await res.json();
       },
 
-      async addTodo() {
+      async createTodo() {
         const res = await fetch('/api/todos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -187,45 +125,55 @@
             endDate: this.endDate || null
           })
         });
-        const newTodo = await res.json();
-        this.todos.push(newTodo);
-        this.newTask = '';
-        this.startDate = '';
-        this.endDate = '';
+
+        if (res.ok) {
+          this.newTask = '';
+          this.startDate = '';
+          this.endDate = '';
+          await this.fetchTodos();
+        }
       },
 
       async toggleTodo(id) {
-        const res = await fetch(`/api/todos/${id}/toggle`, {
-          method: 'PATCH'
-        });
-        const updated = await res.json();
-        const index = this.todos.findIndex(t => t.id === id);
-        if (index > -1) {
-          this.todos[index] = updated;
+        const res = await fetch(`/api/todos/${id}/toggle`, { method: 'PATCH' });
+        if (res.ok) {
+          await this.fetchTodos();
         }
       },
 
       confirmDelete(id) {
         this.todoIdToDelete = id;
-        document.getElementById('deleteDialog').show();
+        this.$refs.deleteDialog.show();
       },
 
       async deleteConfirmed() {
         if (this.todoIdToDelete !== null) {
-          await fetch(`/api/todos/${this.todoIdToDelete}`, {
-            method: 'DELETE'
-          });
-          this.todos = this.todos.filter(t => t.id !== this.todoIdToDelete);
+          const res = await fetch(`/api/todos/${this.todoIdToDelete}`, { method: 'DELETE' });
+          if (res.ok) {
+            await this.fetchTodos();
+          }
           this.todoIdToDelete = null;
+          this.$refs.deleteDialog.hide();
         }
-        document.getElementById('deleteDialog').close();
       },
 
-      init() {
-        this.fetchTodos();
+      downloadExcel() {
+        const worksheetData = this.todos.map(todo => ({
+          Title: todo.title,
+          StartDate: todo.startDate || '-',
+          EndDate: todo.endDate || '-',
+          Status: todo.completed ? 'Completed' : 'Pending'
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Todos');
+
+        XLSX.writeFile(workbook, 'todo-list.xlsx');
       }
     }
   }
 </script>
 
+</body>
 </html>
