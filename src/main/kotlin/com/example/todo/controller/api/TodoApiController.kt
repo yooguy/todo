@@ -1,4 +1,4 @@
-package com.example.todo.controller
+package com.example.todo.controller.api
 
 import com.example.todo.domain.Todo
 import com.example.todo.dto.CreateTodoRequest
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/todos")
-class TodoController(
+class TodoApiController(
     private val todoService: TodoService
 ) {
 

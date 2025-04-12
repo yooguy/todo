@@ -5,6 +5,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+## Project files ##
+src/main/resources/static/libs
+
 ### STS ###
 .apt_generated
 .classpath
@@ -38,3 +41,10 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Node ###
+node_modules/
+
+### Yarn ###
+.yarn/*
+

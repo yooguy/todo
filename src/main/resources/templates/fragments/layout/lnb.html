@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="lnb">
+<nav class="p-4 space-y-6 text-sm">
+
+    <div>
+        <p class="text-gray-500 font-bold mb-2">개발 가이드</p>
+        <ul class="space-y-1">
+            <li><a hx-target="#content" hx-get="/pages/dev-guide/common-guide" hx-trigger="click, load" class="text-gray-700 hover:text-indigo-600">공통 개발 가이드</a></li>
+            <li><a hx-target="#content" hx-get="/pages/dev-guide/single-payment" class="text-gray-700 hover:text-indigo-600">단건결제 가이드</a></li>
+            <li><a hx-target="#content" hx-get="/pages/dev-guide/subscription" class="text-gray-700 hover:text-indigo-600">자동결제 가이드</a></li>
+        </ul>
+    </div>
+    <div>
+        <p class="text-gray-500 font-bold mb-2">서비스 소개</p>
+        <ul class="space-y-1">
+            <li><a hx-target="#content" hx-get="/pages/service/introduction" class="text-gray-700 hover:text-indigo-600">네이버페이란</a></li>
+            <li><a hx-target="#content" hx-get="/pages/service/payment-type" class="text-gray-700 hover:text-indigo-600">결제유형</a></li>
+            <li><a hx-target="#content" hx-get="/pages/service/process" class="text-gray-700 hover:text-indigo-600">프로세스</a></li>
+        </ul>
+    </div>
+    <div>
+        <p class="text-gray-500 font-bold mb-2">기술지원</p>
+        <ul class="space-y-1">
+            <li><a hx-target="#content" hx-get="/pages/support/inspection" class="text-gray-700 hover:text-indigo-600">검수안내</a></li>
+            <li><a hx-target="#content" hx-get="/pages/support/todo" class="text-gray-700 hover:text-indigo-600">ToDo List</a></li>
+        </ul>
+    </div>
+
+</nav>
+</body>
+</html>

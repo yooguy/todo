@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div x-data="todoApp()" class="space-y-6">
+
+    <!-- 헤더 -->
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-slate-800">To-do List</h1>
+        <sl-button variant="success" @click="downloadExcel()" size="small">
+            📥 엑셀 다운로드
+        </sl-button>
+    </div>
+
+    <!-- 입력 폼 -->
+    <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-lg shadow border">
+        <sl-input placeholder="New task..." class="flex-1 min-w-[150px]" x-model="newTask"></sl-input>
+        <sl-input type="date" class="flex-1 min-w-[150px]" x-model="startDate"></sl-input>
+        <sl-input type="date" class="flex-1 min-w-[150px]" x-model="endDate"></sl-input>
+
+        <sl-button variant="primary" size="small" @click="createTodo()" :disabled="newTask.length === 0">
+            ➕ 추가
+        </sl-button>
+    </div>
+
+    <!-- 리스트 -->
+    <div class="bg-white rounded-lg shadow border overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-slate-100 text-slate-700">
+            <tr>
+                <th class="p-3 text-left">작업</th>
+                <th class="p-3 text-center">시작일</th>
+                <th class="p-3 text-center">마감일</th>
+                <th class="p-3 text-center">상태</th>
+                <th class="p-3 text-center">토글</th>
+                <th class="p-3 text-center">액션</th>
+            </tr>
+            </thead>
+            <tbody>
+            <template x-for="todo in todos" :key="todo.id">
+                <tr class="border-t hover:bg-slate-50 transition">
+                    <td class="p-3" :class="todo.completed ? 'text-slate-400 line-through' : ''" x-text="todo.title"></td>
+                    <td class="p-3 text-center" x-text="todo.startDate || '-'"></td>
+                    <td class="p-3 text-center" x-text="todo.endDate || '-'"></td>
+                    <td class="p-3 text-center">
+                        <sl-tag size="small" :variant="todo.completed ? 'success' : 'warning'">
+                            <span x-text="todo.completed ? '완료' : '진행 중'"></span>
+                        </sl-tag>
+                    </td>
+                    <td class="p-3 text-center">
+                        <sl-switch :checked="todo.completed" @sl-change="toggleTodo(todo.id)"></sl-switch>
+                    </td>
+                    <td class="p-3 text-center">
+                        <sl-button variant="danger" size="small" @click="confirmDelete(todo.id)">
+                            🗑️
+                        </sl-button>
+                    </td>
+                </tr>
+            </template>
+
+            <tr x-show="todos.length === 0">
+                <td colspan="6" class="p-8 text-center text-slate-400">
+                    작업이 없습니다. 새 작업을 추가해주세요!
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 삭제 확인 다이얼로그 -->
+    <sl-dialog label="삭제 확인" class="dialog-delete" x-ref="deleteDialog">
+        <p class="text-center py-4">이 작업을 삭제하시겠습니까?</p>
+        <div slot="footer" class="flex justify-end gap-3">
+            <sl-button @click="$refs.deleteDialog.hide()">취소</sl-button>
+            <sl-button variant="danger" @click="deleteConfirmed()">삭제</sl-button>
+        </div>
+    </sl-dialog>
+
+</div>
+
+<script>
+    function todoApp() {
+        return {
+            todos: [],
+            newTask: '',
+            startDate: '',
+            endDate: '',
+            todoIdToDelete: null,
+
+            async fetchTodos() {
+                const res = await fetch('/api/todos');
+                if (res.ok) {
+                    this.todos = await res.json();
+                }
+            },
+
+            async createTodo() {
+                if (!this.newTask.trim()) return;
+                const res = await fetch('/api/todos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: this.newTask,
+                        startDate: this.startDate || null,
+                        endDate: this.endDate || null
+                    })
+                });
+                if (res.ok) {
+                    this.newTask = '';
+                    this.startDate = '';
+                    this.endDate = '';
+                    await this.fetchTodos();
+                }
+            },
+
+            async toggleTodo(id) {
+                const res = await fetch(`/api/todos/${id}/toggle`, { method: 'PATCH' });
+                if (res.ok) {
+                    await this.fetchTodos();
+                }
+            },
+
+            confirmDelete(id) {
+                this.todoIdToDelete = id;
+                this.$refs.deleteDialog.show();
+            },
+
+            async deleteConfirmed() {
+                if (this.todoIdToDelete !== null) {
+                    const res = await fetch(`/api/todos/${this.todoIdToDelete}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        await this.fetchTodos();
+                    }
+                    this.todoIdToDelete = null;
+                    this.$refs.deleteDialog.hide();
+                }
+            },
+
+            downloadExcel() {
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Todos');
+
+                worksheet.columns = [
+                    { header: '작업', key: 'title', width: 40 },
+                    { header: '시작일', key: 'startDate', width: 20 },
+                    { header: '마감일', key: 'endDate', width: 20 },
+                    { header: '상태', key: 'status', width: 15 }
+                ];
+
+                this.todos.forEach(todo => {
+                    worksheet.addRow({
+                        title: todo.title,
+                        startDate: todo.startDate || '-',
+                        endDate: todo.endDate || '-',
+                        status: todo.completed ? '완료' : '진행 중'
+                    });
+                });
+
+                workbook.xlsx.writeBuffer().then(buffer => {
+                    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'todo-list.xlsx';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "name": "todo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build-tailwind": "npx tailwindcss -i ./src/main/resources/static/tailwind.input.css -o ./src/main/resources/static/libs/tailwind/tailwind.css",
+    "build-tailwind-min": "npx tailwindcss -i ./src/main/resources/static/tailwind.input.css -o ./src/main/resources/static/libs/tailwind/tailwind.min.css --minify",
+    "copy-shoelace": "mkdir -p src/main/resources/static/libs/shoelace-style && cp -R node_modules/@shoelace-style/shoelace/cdn/* src/main/resources/static/libs/shoelace-style/",
+    "copy-alpine": "mkdir -p src/main/resources/static/libs/alpinejs && cp node_modules/alpinejs/dist/cdn.min.js src/main/resources/static/libs/alpinejs/alpine.min.js",
+    "copy-exceljs": "mkdir -p src/main/resources/static/libs/exceljs && cp node_modules/exceljs/dist/exceljs.min.js src/main/resources/static/libs/exceljs/",
+    "copy-htmx": "mkdir -p src/main/resources/static/libs/htmx && cp node_modules/htmx.org/dist/htmx.min.js src/main/resources/static/libs/htmx/",
+    "copy-chartjs": "mkdir -p src/main/resources/static/libs/chartjs && cp node_modules/chart.js/dist/chart.umd.js src/main/resources/static/libs/chartjs/",
+    "copy-listjs": "mkdir -p src/main/resources/static/libs/listjs && cp node_modules/list.js/dist/list.min.js src/main/resources/static/libs/listjs/",
+    "copy-libs": "npm run build-tailwind && npm run build-tailwind-min && npm run copy-shoelace && npm run copy-alpine && npm run copy-exceljs && npm run copy-htmx && npm run copy-chartjs && npm run copy-listjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@shoelace-style/shoelace": "^2.20.1",
+    "alpinejs": "^3.14.9",
+    "chart.js": "^4.4.8",
+    "exceljs": "^4.4.0",
+    "htmx.org": "2.0.4",
+    "list.js": "^2.3.1"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.3",
+    "@tailwindcss/cli": "^4.1.3",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/line-clamp": "^0.4.4"
+  }
+}
