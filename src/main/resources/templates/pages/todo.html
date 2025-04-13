@@ -1,77 +1,89 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<body>
+<head>
+    <meta charset="UTF-8">
+    <title>Todo List - Tailwind 4 + 3D</title>
+    <link href="/libs/tailwind/tailwind.min.css" rel="stylesheet">
+    <script src="/libs/alpinejs/alpine.min.js" defer></script>
+    <script src="/libs/exceljs/exceljs.min.js" defer></script>
+    <script src="/libs/shoelace-style/shoelace-autoloader.js" type="module"></script>
 
-<div x-data="todoApp()" class="space-y-6">
+    <style>
+        html { scroll-behavior: smooth; }
+        /* 간단한 fade in 애니메이션 */
+        @keyframes fade-in {
+            0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.6s ease-out forwards;
+        }
+    </style>
+</head>
 
-    <!-- 헤더 -->
+<body class="min-h-screen bg-gradient-to-br from-slate-100 to-white p-10">
+
+<div x-data="todoApp()" class="max-w-5xl mx-auto space-y-10 animate-fade-in">
+
+    <!-- 🏷️ 헤더 -->
     <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-slate-800">To-do List</h1>
-        <sl-button variant="success" @click="downloadExcel()" size="small">
-            📥 엑셀 다운로드
-        </sl-button>
+        <h1 class="text-4xl font-extrabold text-slate-800 drop-shadow">📋 To-do List</h1>
+        <sl-button variant="success" size="small" @click="downloadExcel()">📥 엑셀 다운로드</sl-button>
     </div>
 
-    <!-- 입력 폼 -->
-    <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-lg shadow border">
-        <sl-input placeholder="New task..." class="flex-1 min-w-[150px]" x-model="newTask"></sl-input>
+    <!-- 📝 입력 폼 -->
+    <div class="bg-white rounded-3xl shadow-2xl ring-1 ring-slate-200 p-6 flex flex-wrap items-center gap-4 hover:scale-105 hover:shadow-3xl transition-all duration-300">
+        <sl-input placeholder="New task..." class="flex-1 min-w-[180px]" x-model="newTask"></sl-input>
         <sl-input type="date" class="flex-1 min-w-[150px]" x-model="startDate"></sl-input>
         <sl-input type="date" class="flex-1 min-w-[150px]" x-model="endDate"></sl-input>
-
-        <sl-button variant="primary" size="small" @click="createTodo()" :disabled="newTask.length === 0">
-            ➕ 추가
-        </sl-button>
+        <sl-button variant="primary" size="small" @click="createTodo()" :disabled="newTask.length === 0">➕ 추가</sl-button>
     </div>
 
-    <!-- 리스트 -->
-    <div class="bg-white rounded-lg shadow border overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-slate-100 text-slate-700">
+    <!-- 📋 To-do 리스트 -->
+    <div class="overflow-x-auto bg-white rounded-3xl shadow-2xl ring-1 ring-slate-200 hover:shadow-3xl transition-all duration-300">
+        <table class="w-full text-sm table-auto">
+            <thead class="bg-slate-100 text-slate-700 text-base">
             <tr>
-                <th class="p-3 text-left">작업</th>
-                <th class="p-3 text-center">시작일</th>
-                <th class="p-3 text-center">마감일</th>
-                <th class="p-3 text-center">상태</th>
-                <th class="p-3 text-center">토글</th>
-                <th class="p-3 text-center">액션</th>
+                <th class="p-4 text-left">작업</th>
+                <th class="p-4 text-center">시작일</th>
+                <th class="p-4 text-center">마감일</th>
+                <th class="p-4 text-center">상태</th>
+                <th class="p-4 text-center">토글</th>
+                <th class="p-4 text-center">삭제</th>
             </tr>
             </thead>
+
             <tbody>
             <template x-for="todo in todos" :key="todo.id">
-                <tr class="border-t hover:bg-slate-50 transition">
-                    <td class="p-3" :class="todo.completed ? 'text-slate-400 line-through' : ''" x-text="todo.title"></td>
-                    <td class="p-3 text-center" x-text="todo.startDate || '-'"></td>
-                    <td class="p-3 text-center" x-text="todo.endDate || '-'"></td>
-                    <td class="p-3 text-center">
+                <tr class="border-t transition hover:bg-slate-50 hover:scale-[1.01]">
+                    <td class="p-4" :class="todo.completed ? 'text-slate-400 line-through' : 'text-slate-800'" x-text="todo.title"></td>
+                    <td class="p-4 text-center" x-text="todo.startDate || '-'"></td>
+                    <td class="p-4 text-center" x-text="todo.endDate || '-'"></td>
+                    <td class="p-4 text-center">
                         <sl-tag size="small" :variant="todo.completed ? 'success' : 'warning'">
                             <span x-text="todo.completed ? '완료' : '진행 중'"></span>
                         </sl-tag>
                     </td>
-                    <td class="p-3 text-center">
+                    <td class="p-4 text-center">
                         <sl-switch :checked="todo.completed" @sl-change="toggleTodo(todo.id)"></sl-switch>
                     </td>
-                    <td class="p-3 text-center">
-                        <sl-button variant="danger" size="small" @click="confirmDelete(todo.id)">
-                            🗑️
-                        </sl-button>
+                    <td class="p-4 text-center">
+                        <sl-button variant="danger" size="small" @click="confirmDelete(todo.id)">🗑️</sl-button>
                     </td>
                 </tr>
             </template>
 
             <tr x-show="todos.length === 0">
-                <td colspan="6" class="p-8 text-center text-slate-400">
-                    작업이 없습니다. 새 작업을 추가해주세요!
-                </td>
+                <td colspan="6" class="p-8 text-center text-slate-400">📝 아직 등록된 작업이 없습니다.</td>
             </tr>
-
             </tbody>
         </table>
     </div>
 
-    <!-- 삭제 확인 다이얼로그 -->
+    <!-- 🗑️ 삭제 확인 다이얼로그 -->
     <sl-dialog label="삭제 확인" class="dialog-delete" x-ref="deleteDialog">
-        <p class="text-center py-4">이 작업을 삭제하시겠습니까?</p>
-        <div slot="footer" class="flex justify-end gap-3">
+        <p class="text-center py-6 text-lg">정말 이 작업을 삭제하시겠습니까?</p>
+        <div slot="footer" class="flex justify-end gap-4">
             <sl-button @click="$refs.deleteDialog.hide()">취소</sl-button>
             <sl-button variant="danger" @click="deleteConfirmed()">삭제</sl-button>
         </div>
@@ -166,6 +178,10 @@
                     a.click();
                     URL.revokeObjectURL(url);
                 });
+            },
+
+            async init() {
+                await this.fetchTodos();
             }
         }
     }

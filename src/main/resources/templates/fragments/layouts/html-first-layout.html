@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" x-data="navigationTracker()" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <title>HTML First Demo</title>
+
+    <!-- 스타일 -->
+    <script type="module" src="/libs/shoelace-style/shoelace-autoloader.js"></script>
+    <link rel="stylesheet" href="/libs/shoelace-style/themes/light.css">
+    <link href="/libs/tailwind/tailwind.min.css" rel="stylesheet">
+
+    <!-- 스크립트 -->
+    <script src="/libs/htmx/htmx.min.js" defer></script>
+    <script src="/libs/alpinejs/alpine.min.js" defer></script>
+    <script src="/libs/chartjs/chart.umd.js"></script>
+    <script src="/libs/exceljs/exceljs.min.js"></script>
+
+    <style>
+        html { scroll-behavior: smooth; }
+    </style>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('navigationTracker', () => ({
+                currentCategory: '',
+                currentSubCategory: '',
+                currentItem: ''
+            }))
+        })
+    </script>
+</head>
+
+<body class="h-full flex flex-col">
+
+<!-- ✅ GNB (Global Navigation Bar) -->
+<header class="fixed top-0 left-0 right-0 h-16 bg-white shadow-md flex items-center justify-between px-6 z-50">
+    <div class="flex items-center space-x-2 text-gray-700 font-semibold">
+        <span x-text="currentCategory"></span>
+        <template x-if="currentSubCategory">
+            <span>&gt;</span><span x-text="currentSubCategory"></span>
+        </template>
+        <template x-if="currentItem">
+            <span>&gt;</span><span x-text="currentItem"></span>
+        </template>
+    </div>
+    <div class="flex items-center space-x-4">
+        <sl-avatar label="User" initials="JD"></sl-avatar>
+        <sl-button variant="primary" size="small">Search</sl-button>
+    </div>
+</header>
+
+<!-- ✅ 메인 Layout: LNB + Content + RNB -->
+<div class="flex flex-1 pt-16">
+
+    <!-- ✅ LNB (Left Navigation Bar) -->
+    <nav class="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r shadow-sm overflow-y-auto p-4">
+        <ul class="space-y-2">
+            <li x-data="{ name: '개발 가이드' }">
+                <a hx-get="/pages/common-guide" hx-target="#content" hx-trigger="load, click"
+                   @click="currentCategory = name; currentSubCategory = ''; currentItem = ''"
+                   class="block px-4 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600 font-medium transition"
+                   x-text="name"></a>
+            </li>
+            <li x-data="{ name: '서비스 소개' }">
+                <a hx-get="/pages/introduction" hx-target="#content"
+                   @click="currentCategory = name; currentSubCategory = ''; currentItem = ''"
+                   class="block px-4 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600 font-medium transition"
+                   x-text="name"></a>
+            </li>
+            <li x-data="{ name: '기술지원' }">
+                <a hx-get="/pages/inspection" hx-target="#content"
+                   @click="currentCategory = name; currentSubCategory = ''; currentItem = ''"
+                   class="block px-4 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600 font-medium transition"
+                   x-text="name"></a>
+            </li>
+            <li x-data="{ name: 'To Do List' }">
+                <a hx-get="/pages/todo" hx-target="#content"
+                   @click="currentCategory = name; currentSubCategory = ''; currentItem = ''"
+                   class="block px-4 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600 font-medium transition"
+                   x-text="name"></a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ✅ Content (htmx target) -->
+    <main class="flex-1 ml-64 mr-64 p-8 min-h-screen">
+        <section id="content" class="bg-white rounded-lg shadow p-8 min-h-[80vh]">
+            <!-- guide.html 또는 payments.html이 htmx로 로드될 위치 -->
+        </section>
+    </main>
+
+</div>
+
+</body>
+</html>
