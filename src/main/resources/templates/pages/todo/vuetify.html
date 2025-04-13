@@ -65,8 +65,8 @@
                     <!-- 입력폼 -->
                     <v-card class="mb-6 rounded-lg pa-4" elevation="3">
                         <v-form @submit.prevent="createTodo">
-                            <v-row align="center">
-                                <v-col cols="12" md="4">
+                            <v-row align="center" justify="space-between">
+                                <v-col cols="4">
                                     <v-text-field
                                             v-model.trim="newTask"
                                             label="New task..."
@@ -75,7 +75,7 @@
                                             required
                                     ></v-text-field>
                                 </v-col>
-                                <v-col cols="12" md="3">
+                                <v-col cols="3">
                                     <v-text-field
                                             v-model="startDate"
                                             label="시작일"
@@ -84,7 +84,7 @@
                                             density="comfortable"
                                     ></v-text-field>
                                 </v-col>
-                                <v-col cols="12" md="3">
+                                <v-col cols="3">
                                     <v-text-field
                                             v-model="endDate"
                                             label="마감일"
@@ -93,7 +93,7 @@
                                             density="comfortable"
                                     ></v-text-field>
                                 </v-col>
-                                <v-col cols="12" md="2">
+                                <v-col cols="2" class="d-flex align-center">
                                     <v-btn
                                             type="submit"
                                             color="primary"

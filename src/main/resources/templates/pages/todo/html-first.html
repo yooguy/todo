@@ -77,7 +77,7 @@
                     </td>
                     <td class="p-4">
                         <div class="flex justify-center items-center">
-                            <sl-switch x-model="todo.completed" class="text-lg" @sl-change="toggleTodo(todo.id)"></sl-switch>
+                            <sl-switch x-model="todo.completed" class="text-lg" @click.prevent="confirmToggleTodo(todo)"></sl-switch>
                         </div>
                     </td>
                     <td class="p-4">
@@ -106,6 +106,30 @@
         </div>
     </sl-dialog>
 
+    <!-- ✅ 간결한 토글 모달 -->
+    <sl-dialog x-ref="toggleDialog" :open="todoToToggle !== null" label="상태 변경 확인" @sl-after-hide="todoToToggle = null">
+        <div class="text-center space-y-4 p-4">
+            <div class="flex justify-center">
+                <sl-icon
+                        :name="todoToToggle?.completed ? 'check-all' : 'hourglass-split'"
+                        class="text-6xl"
+                        :class="todoToToggle?.completed ? 'text-green-500' : 'text-yellow-500'"
+                ></sl-icon>
+            </div>
+            <p class="text-lg text-slate-700 font-semibold">
+                "<span x-text="todoToToggle?.title"></span>" 작업을
+                <span :class="todoToToggle?.completed ? 'text-green-600' : 'text-yellow-600'">
+          <span x-text="todoToToggle?.completed ? '완료' : '진행 중'"></span>
+        </span>로 변경하시겠습니까?
+            </p>
+        </div>
+
+        <div slot="footer" class="flex justify-around p-4">
+            <sl-button variant="neutral" @click="$refs.toggleDialog.hide()">취소</sl-button>
+            <sl-button variant="primary" @click="toggleConfirmed">확인</sl-button>
+        </div>
+    </sl-dialog>
+
 </div>
 
 <!-- AlpineJS Logic -->
@@ -117,6 +141,7 @@
             startDate: '',
             endDate: '',
             todoIdToDelete: null,
+            todoToToggle: null,
 
             async fetchTodos() {
                 const res = await fetch('/api/todos');
@@ -143,19 +168,26 @@
                 }
             },
 
-            async toggleTodo(id) {
-                const res = await fetch(`/api/todos/${id}/toggle`, { method: 'PATCH' });
-                if (res.ok) {
-                    this.fetchTodos();
-                }
-            },
-
             async deleteConfirmed() {
                 const res = await fetch(`/api/todos/${this.todoIdToDelete}`, { method: 'DELETE' });
                 if (res.ok) {
                     this.todoIdToDelete = null;
                     this.fetchTodos();
                 }
+            },
+
+            async toggleConfirmed() {
+                if (!this.todoToToggle) return;
+                const res = await fetch(`/api/todos/${this.todoToToggle.id}/toggle`, { method: 'PATCH' });
+                if (res.ok) {
+                    this.todoToToggle = null;
+                    this.fetchTodos();
+                }
+            },
+
+            confirmToggleTodo(todo) {
+                this.todoToToggle = { ...todo, completed: !todo.completed };
+                this.$refs.toggleDialog.show();
             },
 
             downloadExcel() {

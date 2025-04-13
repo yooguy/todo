@@ -1,13 +1,11 @@
 spring:
   application:
     name: todo-app
-  devtools:
-##    livereload:
-##      enabled: true
-#    restart:
-#      enabled: true
-##  thymeleaf:
-##    cache: false
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    check-template: true
+    enabled: true
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver

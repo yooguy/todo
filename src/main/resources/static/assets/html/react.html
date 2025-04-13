@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Todo List - React + Babel</title>
+
+    <!-- Tailwind CSS -->
+    <link href="/libs/tailwind/tailwind.min.css" rel="stylesheet">
+
+    <!-- ExcelJS -->
+    <script src="/libs/exceljs/exceljs.min.js"></script>
+
+    <!-- React + ReactDOM (CDN) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- Babel (브라우저 JSX 변환기) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+
+    <style>
+        html { scroll-behavior: smooth; }
+        @keyframes fade-in {
+            0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-slate-100 to-white p-10">
+<div id="root"></div>
+
+<!-- React App -->
+<script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function App() {
+        const [todos, setTodos] = useState([]);
+        const [newTask, setNewTask] = useState('');
+        const [startDate, setStartDate] = useState('');
+        const [endDate, setEndDate] = useState('');
+        const [deleteId, setDeleteId] = useState(null);
+
+        useEffect(() => {
+            fetchTodos();
+        }, []);
+
+        async function fetchTodos() {
+            try {
+                const res = await fetch('/api/todos');
+                if (res.ok) {
+                    setTodos(await res.json());
+                }
+            } catch (error) {
+                console.error('Failed to fetch todos:', error);
+            }
+        }
+
+        async function createTodo(e) {
+            e.preventDefault();
+            if (!newTask.trim()) return;
+
+            try {
+                await fetch('/api/todos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: newTask, startDate, endDate })
+                });
+                setNewTask('');
+                setStartDate('');
+                setEndDate('');
+                fetchTodos();
+            } catch (error) {
+                console.error('Failed to create todo:', error);
+            }
+        }
+
+        async function toggleTodo(id) {
+            try {
+                await fetch(`/api/todos/${id}/toggle`, { method: 'PATCH' });
+                fetchTodos();
+            } catch (error) {
+                console.error('Failed to toggle todo:', error);
+            }
+        }
+
+        async function deleteConfirmed() {
+            if (!deleteId) return;
+            try {
+                await fetch(`/api/todos/${deleteId}`, { method: 'DELETE' });
+                setDeleteId(null);
+                fetchTodos();
+            } catch (error) {
+                console.error('Failed to delete todo:', error);
+                setDeleteId(null);
+            }
+        }
+
+        function downloadExcel() {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Todos');
+
+            worksheet.columns = [
+                { header: '작업', key: 'title' },
+                { header: '시작일', key: 'startDate' },
+                { header: '마감일', key: 'endDate' },
+                { header: '상태', key: 'status' }
+            ];
+
+            todos.forEach(todo => {
+                worksheet.addRow({
+                    title: todo.title,
+                    startDate: todo.startDate || '-',
+                    endDate: todo.endDate || '-',
+                    status: todo.completed ? '완료' : '진행 중'
+                });
+            });
+
+            workbook.xlsx.writeBuffer().then(buffer => {
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'todo-list.xlsx';
+                a.click();
+                URL.revokeObjectURL(url);
+            }).catch(error => {
+                console.error('Error creating Excel file:', error);
+            });
+        }
+
+        return (
+            <div className="max-w-5xl mx-auto space-y-10 animate-fade-in">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <h1 className="text-4xl font-extrabold text-slate-800 drop-shadow">📋 To-do List</h1>
+                    <button onClick={downloadExcel} className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white shadow">
+                        📥 엑셀 다운로드
+                    </button>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={createTodo} className="bg-white rounded-3xl shadow-2xl ring-1 ring-slate-200 p-6 flex flex-wrap items-center gap-4">
+                    <input
+                        type="text"
+                        value={newTask}
+                        onChange={(e) => setNewTask(e.target.value)}
+                        placeholder="New task..."
+                        className="flex-1 min-w-[180px] p-2 rounded-lg border"
+                        required
+                    />
+                    <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="flex-1 min-w-[150px] p-2 rounded-lg border"
+                    />
+                    <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="flex-1 min-w-[150px] p-2 rounded-lg border"
+                    />
+                    <button
+                        type="submit"
+                        className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white shadow"
+                        disabled={!newTask.trim()}
+                    >
+                        ➕ 추가
+                    </button>
+                </form>
+
+                {/* Todo List */}
+                <div className="overflow-x-auto bg-white rounded-3xl shadow-2xl ring-1 ring-slate-200">
+                    <table className="w-full text-sm table-auto">
+                        <thead className="bg-slate-100 text-slate-700">
+                        <tr>
+                            <th className="p-4 text-left">작업</th>
+                            <th className="p-4 text-center">시작일</th>
+                            <th className="p-4 text-center">마감일</th>
+                            <th className="p-4 text-center">상태</th>
+                            <th className="p-4 text-center">토글</th>
+                            <th className="p-4 text-center">삭제</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {todos.length === 0 ? (
+                            <tr>
+                                <td colSpan="6" className="p-8 text-center text-slate-400">📝 아직 등록된 작업이 없습니다.</td>
+                            </tr>
+                        ) : (
+                            todos.map(todo => (
+                                <tr key={todo.id} className="border-t hover:bg-slate-50 transition">
+                                    <td className={`p-4 ${todo.completed ? 'line-through text-gray-400' : 'text-slate-800'}`}>{todo.title}</td>
+                                    <td className="p-4 text-center">{todo.startDate || '-'}</td>
+                                    <td className="p-4 text-center">{todo.endDate || '-'}</td>
+                                    <td className="p-4 text-center">
+                        <span className={todo.completed ? 'text-green-600' : 'text-yellow-500'}>
+                          {todo.completed ? '완료' : '진행 중'}
+                        </span>
+                                    </td>
+                                    <td className="p-4 text-center">
+                                        <input type="checkbox" checked={todo.completed} onChange={() => toggleTodo(todo.id)} />
+                                    </td>
+                                    <td className="p-4 text-center">
+                                        <button onClick={() => setDeleteId(todo.id)} className="text-red-500 hover:underline">🗑️</button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* 삭제 모달 */}
+                {deleteId && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black/30">
+                        <div className="bg-white p-8 rounded-xl shadow-2xl space-y-6 w-80">
+                            <h2 className="text-xl font-bold text-center">삭제 확인</h2>
+                            <p className="text-center text-slate-600">정말 삭제하시겠습니까?</p>
+                            <div className="flex justify-around">
+                                <button onClick={() => setDeleteId(null)} className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded">취소</button>
+                                <button onClick={deleteConfirmed} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded">삭제</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+</body>
+</html>

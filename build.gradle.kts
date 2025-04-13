@@ -52,8 +52,8 @@ tasks.withType<Test> {
 
 // --- ✨ Node.js, npm 설정 ---
 node {
-    version.set("20.11.0")
-    npmVersion.set("10.2.4")
+    version.set("22.14.0")
+    npmVersion.set("10.9.2")
     download.set(true)                   // ✅ 로컬에 없으면 자동 설치
     nodeProjectDir.set(file("${projectDir}"))
 }
