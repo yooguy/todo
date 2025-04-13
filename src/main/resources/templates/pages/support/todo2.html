@@ -1,0 +1,151 @@
+
+<body class="font-sans text-slate-800" x-data="todoApp()" x-init="fetchTodos()">
+<div class="max-w-5xl mx-auto p-6 space-y-8">
+
+    <!-- 헤더 -->
+    <header class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">📋 To-do List</h1>
+        <sl-button variant="success" @click="downloadExcel">엑셀 다운로드</sl-button>
+    </header>
+
+    <!-- 새로운 할일 추가 폼 -->
+    <div class="flex flex-wrap gap-4 bg-white p-6 rounded-lg shadow border">
+        <sl-input class="flex-1 min-w-[200px]" placeholder="할 일 제목 입력..." x-model="newTodo.title"></sl-input>
+        <sl-input type="date" class="min-w-[150px]" x-model="newTodo.startDate"></sl-input>
+        <sl-input type="date" class="min-w-[150px]" x-model="newTodo.endDate"></sl-input>
+        <sl-button variant="primary" @click="createTodo" :disabled="!newTodo.title">➕ 추가</sl-button>
+    </div>
+
+    <!-- To-do 리스트 -->
+    <div class="bg-white rounded-lg shadow border overflow-hidden">
+        <table class="w-full table-auto text-sm">
+            <thead class="bg-slate-100">
+            <tr>
+                <th class="px-4 py-3 text-left">할 일</th>
+                <th class="px-4 py-3 text-center">시작일</th>
+                <th class="px-4 py-3 text-center">마감일</th>
+                <th class="px-4 py-3 text-center">상태</th>
+                <th class="px-4 py-3 text-center">토글</th>
+                <th class="px-4 py-3 text-center">삭제</th>
+            </tr>
+            </thead>
+            <tbody>
+            <template x-for="todo in todos" :key="todo.id">
+                <tr class="border-t hover:bg-slate-50 fade-in">
+                    <td class="px-4 py-2" :class="todo.completed ? 'line-through text-slate-400' : ''" x-text="todo.title"></td>
+                    <td class="px-4 py-2 text-center" x-text="todo.startDate || '-' "></td>
+                    <td class="px-4 py-2 text-center" x-text="todo.endDate || '-' "></td>
+                    <td class="px-4 py-2 text-center">
+                        <sl-tag size="small" :variant="todo.completed ? 'success' : 'warning'">
+                            <span x-text="todo.completed ? '완료' : '진행 중'"></span>
+                        </sl-tag>
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        <sl-switch :checked="todo.completed" @sl-change="toggleTodo(todo.id)"></sl-switch>
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        <sl-button size="small" variant="danger" @click="deleteTodo(todo.id)">🗑️</sl-button>
+                    </td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ChartJS 그래프 -->
+    <div class="bg-white p-6 rounded-lg shadow border">
+        <canvas id="todoChart" height="100"></canvas>
+    </div>
+
+</div>
+
+<script>
+    function todoApp() {
+        return {
+            newTodo: { title: '', startDate: '', endDate: '' },
+            todos: [],
+
+            async fetchTodos() {
+                const res = await fetch('/api/todos');
+                this.todos = await res.json();
+                this.renderChart();
+            },
+
+            async createTodo() {
+                const res = await fetch('/api/todos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.newTodo)
+                });
+                if (res.ok) {
+                    this.newTodo = { title: '', startDate: '', endDate: '' };
+                    await this.fetchTodos();
+                }
+            },
+
+            async toggleTodo(id) {
+                const res = await fetch(`/api/todos/${id}/toggle`, { method: 'PATCH' });
+                if (res.ok) {
+                    await this.fetchTodos();
+                }
+            },
+
+            async deleteTodo(id) {
+                const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    await this.fetchTodos();
+                }
+            },
+
+            downloadExcel() {
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Todos');
+                worksheet.columns = [
+                    { header: '제목', key: 'title', width: 30 },
+                    { header: '시작일', key: 'startDate', width: 15 },
+                    { header: '마감일', key: 'endDate', width: 15 },
+                    { header: '완료여부', key: 'completed', width: 10 }
+                ];
+                this.todos.forEach(todo => {
+                    worksheet.addRow({
+                        title: todo.title,
+                        startDate: todo.startDate || '-',
+                        endDate: todo.endDate || '-',
+                        completed: todo.completed ? '완료' : '진행 중'
+                    });
+                });
+                workbook.xlsx.writeBuffer().then(buffer => {
+                    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `todo_list_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            },
+
+            renderChart() {
+                const completed = this.todos.filter(t => t.completed).length;
+                const pending = this.todos.length - completed;
+                const ctx = document.getElementById('todoChart').getContext('2d');
+                if (this.chart) {
+                    this.chart.destroy();
+                }
+                this.chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['완료', '진행 중'],
+                        datasets: [{
+                            data: [completed, pending],
+                            backgroundColor: ['#4ade80', '#facc15'],
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+                });
+            }
+        }
+    }
+</script>
+</body>
+
