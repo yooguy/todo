@@ -21,3 +21,23 @@ spring:
     properties:
       hibernate:
         format_sql: true
+server:
+  port: 8080
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: ${user.home}/logs
+      prefix: access_log
+      suffix: .log
+      file-date-format: .yyyy-MM-dd
+      rotate: true
+      request-attributes-enabled: true
+      buffered: true
+
+management:
+  server:
+    port: 8081   # 헬스체크 전용 포트로 분리됨
+  endpoints:
+    web:
+      exposure:
+        include: health,info
