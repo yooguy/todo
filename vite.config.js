@@ -24,7 +24,7 @@ const staticTargets = [
 
     // 유틸리티 JS 라이브러리
     { src: 'node_modules/dayjs/dayjs.min.js', dest: 'dayjs' },
-    { src: 'node_modules/lodash-es/lodash.js', dest: 'lodash-es', rename: 'lodash.min.js' },
+    { src: 'node_modules/lodash/lodash.min.js', dest: 'lodash' },
     { src: 'node_modules/air-datepicker/air-datepicker.js', dest: 'air-datepicker' },
     { src: 'node_modules/air-datepicker/air-datepicker.css', dest: 'air-datepicker' },
     { src: 'node_modules/validator/validator.min.js', dest: 'validator' },

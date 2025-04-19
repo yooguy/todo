@@ -7,6 +7,7 @@
     <!-- 스타일 -->
     <link th:href="@{/vendors/shoelace-style/themes/light.css}" rel="stylesheet">
     <link th:href="@{/vendors/tailwind/tailwind.min.css}" rel="stylesheet">
+    <link th:href="@{/vendors/air-datepicker/air-datepicker.css}" rel="stylesheet">
 
     <!-- Shoelace 설정: 모듈 import 방식으로 basePath 먼저 설정 -->
     <script type="module" th:inline="javascript">
@@ -21,8 +22,12 @@
     <script th:src="@{/vendors/exceljs/exceljs.min.js}" defer></script>
     <script th:src="@{/vendors/vue/vue.global.prod.js}" defer></script>
     <script th:src="@{/vendors/axios/axios.min.js}" defer></script>
+    <script th:src="@{/vendors/dayjs/dayjs.min.js}" defer></script>
+    <script th:src="@{/vendors/lodash/lodash.min.js}" defer></script>
+    <script th:src="@{/vendors/air-datepicker/air-datepicker.js}" defer></script>
+    <script th:src="@{/vendors/validator/validator.min.js}" defer></script>
 
-    <!-- Alpine.js Plugins (순서 중요: 플러그인이 먼저 로드되어야 함) -->
+    <!-- Alpine.js Plugins (순서 중요, 플러그인이 먼저 로그되어야함) -->
     <script th:src="@{/vendors/alpinejs/plugins/persist.min.js}" defer></script>
     <script th:src="@{/vendors/alpinejs/plugins/mask.min.js}" defer></script>
     <script th:src="@{/vendors/alpinejs/plugins/intersect.min.js}" defer></script>
@@ -108,7 +113,6 @@
             <!-- guide.html 또는 payments.html이 htmx로 로드될 위치 -->
         </section>
     </main>
-
 </div>
 
 </body>
