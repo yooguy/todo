@@ -5,21 +5,36 @@
     <title>HTML First Demo22</title>
 
     <!-- 스타일 -->
+    <link th:href="@{/vendors/shoelace-style/themes/light.css}" rel="stylesheet">
+    <link th:href="@{/vendors/tailwind/tailwind.min.css}" rel="stylesheet">
+
+    <!-- Shoelace 설정: 모듈 import 방식으로 basePath 먼저 설정 -->
     <script type="module" th:inline="javascript">
         import { setBasePath } from /*[[@{/vendors/shoelace-style/shoelace.js}]]*/ "";
         setBasePath(/*[[@{/vendors/shoelace-style}]]*/ "");
         import /*[[@{/vendors/shoelace-style/shoelace-autoloader.js}]]*/ "";
     </script>
-    <link th:href="@{/vendors/shoelace-style/themes/light.css}" rel="stylesheet">
-    <link th:href="@{/vendors/tailwind/tailwind.min.css}" rel="stylesheet">
 
-    <!-- 스크립트 -->
+    <!-- 유틸 JS 라이브러리 -->
     <script th:src="@{/vendors/htmx/htmx.min.js}" defer></script>
-    <script th:src="@{/vendors/alpinejs/alpine.min.js}" defer></script>
-    <script th:src="@{/vendors/chartjs/chart.umd.js}"></script>
-    <script th:src="@{/vendors/exceljs/exceljs.min.js}"></script>
-    <script th:src="@{/vendors/vue/vue.global.prod.js}"></script>
+    <script th:src="@{/vendors/chartjs/chart.umd.js}" defer></script>
+    <script th:src="@{/vendors/exceljs/exceljs.min.js}" defer></script>
+    <script th:src="@{/vendors/vue/vue.global.prod.js}" defer></script>
+    <script th:src="@{/vendors/axios/axios.min.js}" defer></script>
 
+    <!-- Alpine.js Plugins (순서 중요: 플러그인이 먼저 로드되어야 함) -->
+    <script th:src="@{/vendors/alpinejs/plugins/persist.min.js}" defer></script>
+    <script th:src="@{/vendors/alpinejs/plugins/mask.min.js}" defer></script>
+    <script th:src="@{/vendors/alpinejs/plugins/intersect.min.js}" defer></script>
+    <script th:src="@{/vendors/alpinejs/plugins/focus.min.js}" defer></script>
+    <script th:src="@{/vendors/alpinejs/plugins/collapse.min.js}" defer></script>
+    <script th:src="@{/vendors/alpinejs/plugins/anchor.min.js}" defer></script>
+    <script th:src="@{/vendors/alpinejs/plugins/sort.min.js}" defer></script>
+
+    <!-- Alpine.js Core -->
+    <script th:src="@{/vendors/alpinejs/alpine.min.js}" defer></script>
+
+    <!-- 스타일 추가 -->
     <style>
         html { scroll-behavior: smooth; }
     </style>
