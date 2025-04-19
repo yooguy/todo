@@ -6,7 +6,7 @@ build/
 !**/src/test/**/build/
 
 ## Project files ##
-src/main/resources/static/libs
+src/main/resources/static/vendors
 
 ### STS ###
 .apt_generated
