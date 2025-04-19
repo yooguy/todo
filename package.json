@@ -14,6 +14,8 @@
     "copy-vue": "mkdir -p src/main/resources/static/libs/vue && cp node_modules/vue/dist/vue.global.prod.js src/main/resources/static/libs/vue/",
     "copy-vuetify": "mkdir -p src/main/resources/static/libs/vuetify && cp node_modules/vuetify/dist/vuetify.min.css src/main/resources/static/libs/vuetify/ && cp node_modules/vuetify/dist/vuetify.min.js src/main/resources/static/libs/vuetify/",
     "copy-mdi": "mkdir -p src/main/resources/static/libs/mdi && cp node_modules/@mdi/font/css/materialdesignicons.min.css src/main/resources/static/libs/mdi/ && mkdir -p src/main/resources/static/libs/fonts && cp node_modules/@mdi/font/fonts/* src/main/resources/static/libs/fonts/",
+    "copy-toastui": "mkdir -p src/main/resources/static/libs/toastui && cp node_modules/@toast-ui/editor/dist/toastui-editor.min.* src/main/resources/static/libs/toastui/",
+    "copy-jsoneditor": "mkdir -p src/main/resources/static/libs/jsoneditor && cp node_modules/jsoneditor/dist/* src/main/resources/static/libs/jsoneditor/",
     "copy-libs": "npm run build-tailwind && npm run copy-shoelace && npm run copy-alpinejs && npm run copy-exceljs && npm run copy-htmx && npm run copy-chartjs && npm run copy-listjs && npm run copy-vue && npm run copy-vuetify && npm run copy-mdi && npm run copy-axios"
   },
   "keywords": [],
@@ -30,7 +32,9 @@
     "list.js": "^2.3.1",
     "vue": "^3.5.13",
     "vuetify": "^3.8.1",
-    "@mdi/font": "^7.4.47"
+    "@mdi/font": "^7.4.47",
+    "@toast-ui/editor": "^3.2.2",
+    "jsoneditor": "^10.2.0"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.3",
