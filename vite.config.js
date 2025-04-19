@@ -44,9 +44,6 @@ export default defineConfig({
         emptyOutDir: false,
         rollupOptions: {
             input: 'src/main/resources/static/main.js',
-            output: {
-                entryFileNames: 'main.js'
-            }
         }
     }
 });

@@ -55,19 +55,29 @@ tasks.withType<Test> {
 node {
     version.set("22.14.0")
     npmVersion.set("10.9.2")
-    download.set(true)                   // ✅ 로컬에 없으면 자동 설치
+    download.set(true)                   // 로컬에 없으면 자동 설치
     nodeProjectDir.set(file("${projectDir}"))
 }
 
 // --- ✨ NPM 라이브러리 복사 Task ---
 val npmCopyLibs by tasks.registering(com.github.gradle.node.npm.task.NpmTask::class) {
-    dependsOn("npmInstall")               // ✅ npm install 먼저
-    args.set(listOf("run", "copy-libs"))   // ✅ npm run copy-libs 실행
-    inputs.file("package.json")            // ✅ package.json 변경 감지
-    outputs.dir("src/main/resources/static/libs") // ✅ 결과물 output 명시
+    dependsOn("npmInstall")
+    args.set(listOf("run", "copy-libs"))
+
+    // 변경 감지 대상 파일
+    inputs.files(
+        file("vite.config.js"),
+        file("tailwind.config.js"),
+        file("tailwind.input.css"),
+        file("package.json"),
+        file("package-lock.json")
+    )
+
+    // 결과물이 들어갈 실제 디렉토리
+    outputs.dir("src/main/resources/static/vendors")
 }
 
 // --- ✨ Spring Boot 빌드 전에 npmCopyLibs 실행 연결 ---
 tasks.named<ProcessResources>("processResources") {
-    dependsOn(npmCopyLibs) // ✅ 리소스 복사 전에 npmCopyLibs 무조건 실행
+    dependsOn(npmCopyLibs) // 리소스 복사 전에 npmCopyLibs 무조건 실행
 }
