@@ -1,0 +1,14 @@
+<!-- templates/pages/todo.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layouts/layout :: layout}">
+<title>할 일 목록</title>
+
+<section th:fragment="content">
+    <h1 class="text-2xl font-bold mb-6">할 일 목록</h1>
+    <ul class="space-y-3">
+        <li class="p-4 bg-white rounded shadow">✅ 초안 만들기</li>
+        <li class="p-4 bg-white rounded shadow">📅 일정 조율</li>
+        <li class="p-4 bg-white rounded shadow">🔒 보안 검토</li>
+    </ul>
+</section>
+</html>

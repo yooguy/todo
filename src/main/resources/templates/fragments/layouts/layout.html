@@ -1,119 +1,33 @@
+<!-- templates/fragments/layouts/layout.html -->
 <!DOCTYPE html>
-<html lang="en" x-data="navigationTracker()" class="h-full bg-gray-50">
-<head>
-    <meta charset="UTF-8">
-    <title>HTML First Demo22</title>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko" th:fragment="layout" class="h-full bg-gray-50">
 
-    <!-- 스타일 -->
-    <link th:href="@{/vendors/shoelace-style/themes/light.css}" rel="stylesheet">
-    <link th:href="@{/vendors/tailwind/tailwind.min.css}" rel="stylesheet">
-    <link th:href="@{/vendors/air-datepicker/air-datepicker.css}" rel="stylesheet">
+<!-- ✅ head 영역: 라이브러리 로딩 -->
+<th:block th:replace="~{fragments/layouts/head :: head(~{::title})}" />
 
-    <!-- Shoelace 설정: 모듈 import 방식으로 basePath 먼저 설정 -->
-    <script type="module" th:inline="javascript">
-        import { setBasePath } from /*[[@{/vendors/shoelace-style/shoelace.js}]]*/ "";
-        setBasePath(/*[[@{/vendors/shoelace-style}]]*/ "");
-        import /*[[@{/vendors/shoelace-style/shoelace-autoloader.js}]]*/ "";
-    </script>
+<body class="h-full">
+<!-- ✅ 전체 레이아웃: GNB(상단) + LNB(좌측) + Content(우측) -->
+<div class="flex flex-col h-full">
 
-    <!-- 유틸 JS 라이브러리 -->
-    <script th:src="@{/vendors/htmx/htmx.min.js}" defer></script>
-    <script th:src="@{/vendors/chartjs/chart.umd.js}" defer></script>
-    <script th:src="@{/vendors/exceljs/exceljs.min.js}" defer></script>
-    <script th:src="@{/vendors/vue/vue.global.prod.js}" defer></script>
-    <script th:src="@{/vendors/axios/axios.min.js}" defer></script>
-    <script th:src="@{/vendors/dayjs/dayjs.min.js}" defer></script>
-    <script th:src="@{/vendors/lodash/lodash.min.js}" defer></script>
-    <script th:src="@{/vendors/air-datepicker/air-datepicker.js}" defer></script>
-    <script th:src="@{/vendors/validator/validator.min.js}" defer></script>
+    <!-- ✅ GNB (상단 고정) -->
+    <th:block th:replace="~{fragments/layouts/gnb}" />
 
-    <!-- Alpine.js Plugins (순서 중요, 플러그인이 먼저 로그되어야함) -->
-    <script th:src="@{/vendors/alpinejs/plugins/persist.min.js}" defer></script>
-    <script th:src="@{/vendors/alpinejs/plugins/mask.min.js}" defer></script>
-    <script th:src="@{/vendors/alpinejs/plugins/intersect.min.js}" defer></script>
-    <script th:src="@{/vendors/alpinejs/plugins/focus.min.js}" defer></script>
-    <script th:src="@{/vendors/alpinejs/plugins/collapse.min.js}" defer></script>
-    <script th:src="@{/vendors/alpinejs/plugins/anchor.min.js}" defer></script>
-    <script th:src="@{/vendors/alpinejs/plugins/sort.min.js}" defer></script>
+    <!-- ✅ GNB 아래 LNB + Content 수평 배치 -->
+    <div class="flex flex-1 pt-16">
 
-    <!-- Alpine.js Core -->
-    <script th:src="@{/vendors/alpinejs/alpine.min.js}" defer></script>
+        <!-- ✅ LNB (좌측 고정) -->
+        <aside class="w-64 bg-white border-r shadow-sm">
+            <th:block th:replace="~{fragments/layouts/lnb}" />
+        </aside>
 
-    <!-- 스타일 추가 -->
-    <style>
-        html { scroll-behavior: smooth; }
-    </style>
+        <!-- ✅ Content 영역 -->
+        <main class="flex-1 px-6 py-6 overflow-auto">
+            <div id="content">
+                <th:block th:replace="~{::content}" />
+            </div>
+        </main>
 
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('navigationTracker', () => ({
-                currentCategory: '',
-                currentSubCategory: '',
-                currentItem: ''
-            }))
-        })
-    </script>
-</head>
-
-<body class="h-full flex flex-col">
-
-<!-- ✅ GNB (Global Navigation Bar) -->
-<header class="fixed top-0 left-0 right-0 h-16 bg-white shadow-md flex items-center justify-between px-6 z-50">
-    <div class="flex items-center space-x-2 text-gray-700 font-semibold">
-        <span x-text="currentCategory"></span>
-        <template x-if="currentSubCategory">
-            <span>&gt;</span><span x-text="currentSubCategory"></span>
-        </template>
-        <template x-if="currentItem">
-            <span>&gt;</span><span x-text="currentItem"></span>
-        </template>
     </div>
-    <div class="flex items-center space-x-4">
-        <sl-avatar label="User" initials="JD"></sl-avatar>
-        <sl-button variant="primary" size="small">Search</sl-button>
-    </div>
-</header>
-
-<!-- ✅ 메인 Layout: LNB + Content + RNB -->
-<div class="flex flex-1 pt-16">
-
-    <!-- ✅ LNB (Left Navigation Bar) -->
-    <nav class="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r shadow-sm overflow-y-auto p-4">
-        <ul class="space-y-2">
-            <li x-data="{ name: '개발 가이드' }">
-                <a hx-get="/pages/common-guide" hx-target="#content" hx-trigger="load, click"
-                   @click="currentCategory = name; currentSubCategory = ''; currentItem = ''"
-                   class="block px-4 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600 font-medium transition"
-                   x-text="name"></a>
-            </li>
-            <li x-data="{ name: '서비스 소개' }">
-                <a hx-get="/pages/introduction" hx-target="#content"
-                   @click="currentCategory = name; currentSubCategory = ''; currentItem = ''"
-                   class="block px-4 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600 font-medium transition"
-                   x-text="name"></a>
-            </li>
-            <li x-data="{ name: '기술지원' }">
-                <a hx-get="/pages/inspection" hx-target="#content"
-                   @click="currentCategory = name; currentSubCategory = ''; currentItem = ''"
-                   class="block px-4 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600 font-medium transition"
-                   x-text="name"></a>
-            </li>
-            <li x-data="{ name: 'To Do List' }">
-                <a hx-get="/pages/todo" hx-target="#content"
-                   @click="currentCategory = name; currentSubCategory = ''; currentItem = ''"
-                   class="block px-4 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600 font-medium transition"
-                   x-text="name"></a>
-            </li>
-        </ul>
-    </nav>
-
-    <!-- ✅ Content (htmx target) -->
-    <main class="flex-1 ml-64 mr-64 p-8 min-h-screen">
-        <section id="content" class="bg-white rounded-lg shadow p-8 min-h-[80vh]">
-            <!-- guide.html 또는 payments.html이 htmx로 로드될 위치 -->
-        </section>
-    </main>
 </div>
-
 </body>
 </html>

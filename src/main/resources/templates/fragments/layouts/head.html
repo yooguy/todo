@@ -1,0 +1,42 @@
+<!-- templates/fragments/layouts/head.html -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <title th:replace="${title}">HTML First Default</title>
+
+    <!-- 스타일 -->
+    <link th:href="@{/vendors/shoelace-style/themes/light.css}" rel="stylesheet">
+    <link th:href="@{/vendors/tailwind/tailwind.min.css}" rel="stylesheet">
+    <link th:href="@{/vendors/air-datepicker/air-datepicker.css}" rel="stylesheet">
+
+    <!-- Shoelace 모듈 설정 -->
+    <script type="module" th:inline="javascript">
+        import { setBasePath } from /*[[@{/vendors/shoelace-style/shoelace.js}]]*/ "";
+        setBasePath(/*[[@{/vendors/shoelace-style}]]*/ "");
+        import /*[[@{/vendors/shoelace-style/shoelace-autoloader.js}]]*/ "";
+    </script>
+
+    <!-- 유틸 JS -->
+    <script th:src="@{/vendors/htmx/htmx.min.js}"></script>
+    <script th:src="@{/vendors/chartjs/chart.umd.js}"></script>
+    <script th:src="@{/vendors/exceljs/exceljs.min.js}"></script>
+    <script th:src="@{/vendors/vue/vue.global.prod.js}"></script>
+    <script th:src="@{/vendors/axios/axios.min.js}"></script>
+    <script th:src="@{/vendors/dayjs/dayjs.min.js}"></script>
+    <script th:src="@{/vendors/lodash/lodash.min.js}"></script>
+    <script th:src="@{/vendors/air-datepicker/air-datepicker.js}"></script>
+    <script th:src="@{/vendors/validator/validator.min.js}"></script>
+
+    <!-- Alpine.js Plugins -->
+    <script th:src="@{/vendors/alpinejs/plugins/persist.min.js}"></script>
+    <script th:src="@{/vendors/alpinejs/plugins/mask.min.js}"></script>
+    <script th:src="@{/vendors/alpinejs/plugins/intersect.min.js}"></script>
+    <script th:src="@{/vendors/alpinejs/plugins/focus.min.js}"></script>
+    <script th:src="@{/vendors/alpinejs/plugins/collapse.min.js}"></script>
+    <script th:src="@{/vendors/alpinejs/plugins/anchor.min.js}"></script>
+    <script th:src="@{/vendors/alpinejs/plugins/sort.min.js}"></script>
+    <script th:src="@{/vendors/alpinejs/alpine.min.js}" defer></script>
+
+    <style>
+        html { scroll-behavior: smooth; }
+    </style>
+</head>

@@ -1,0 +1,16 @@
+<!-- templates/fragments/layouts/gnb.html -->
+<header th:fragment="gnb"
+        class="fixed top-0 left-0 right-0 h-16 bg-white shadow-md flex items-center justify-between px-6 z-50">
+
+    <!-- 로고 및 제목 -->
+    <div class="flex items-center space-x-4 text-gray-700 font-semibold">
+        <a href="/">
+            <img src="/assets/img/npay.svg" alt="N Pay" />
+        </a>
+    </div>
+
+    <!-- 사용자 아바타 -->
+    <div class="flex items-center space-x-4">
+        <sl-avatar label="User" initials="JD"></sl-avatar>
+    </div>
+</header>

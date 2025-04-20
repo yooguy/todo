@@ -1,0 +1,95 @@
+<!-- templates/fragments/layouts/lnb.html -->
+<nav
+        th:fragment="lnb"
+        x-data="lnbMenu()"
+        class="h-full p-4 overflow-y-auto bg-white"
+        hx-target="#content"
+        hx-swap="innerHTML"
+>
+
+    <!-- 🔍 검색 입력 -->
+    <input
+            type="text"
+            x-model="search"
+            placeholder="메뉴 검색"
+            class="w-full px-3 py-2 mb-4 border rounded text-sm focus:outline-none focus:ring"
+            x-on:input.debounce.200ms
+    >
+
+    <!-- 📂 메뉴 그룹 렌더링 -->
+    <template x-for="category in filteredCategories" :key="category.name">
+        <div class="mb-4">
+            <!-- 대주제명 -->
+            <div class="text-slate-700 font-bold px-2 py-1 text-sm" x-text="category.name"></div>
+
+            <!-- 소주제 리스트 -->
+            <ul class="pl-4 mt-2 space-y-1">
+                <template x-for="item in category.items" :key="item.name">
+                    <li x-show="item.name.toLowerCase().includes(search.toLowerCase())">
+                        <a
+                                :href="item.url"
+                                :hx-get="item.url + '-content'"
+                                :hx-on:afterSwap="item.afterSwap || null"
+                                class="block px-3 py-1.5 rounded hover:bg-blue-50 hover:text-blue-700 text-sm"
+                                x-text="item.name"
+                        ></a>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </template>
+
+    <!-- 🔁 검색 결과 없을 때 -->
+    <template x-if="filteredCategories.length === 0">
+        <p class="text-gray-400 text-sm px-2">검색된 메뉴가 없습니다.</p>
+    </template>
+
+    <!-- 🧠 Alpine.js 정의 -->
+    <script>
+        function lnbMenu() {
+            return {
+                search: '',
+                categories: [
+                    {
+                        name: '가이드',
+                        items: [
+                            { name: '개발 가이드', url: '/pages/guides/common' },
+                            { name: '디자인 가이드', url: '/pages/guides/design' },
+                            { name: '컴포넌트 가이드', url: '/pages/guides/component' }
+                        ]
+                    },
+                    {
+                        name: '통계',
+                        items: [
+                            { name: 'vanillajs', url: '/pages/stats/vanillajs' },
+                            { name: 'vue', url: '/pages/stats/vue' },
+                            { name: 'vuetify', url: '/pages/stats/vuetify' },
+                            { name: 'alpinejs', url: '/pages/stats/alpinejs' },
+                            { name: 'htmlfirst', url: '/pages/stats/htmlfirst' }
+                        ]
+                    },
+                    {
+                        name: 'Todos',
+                        items: [
+                            { name: 'vanillajs', url: '/pages/todos/vanillajs', afterSwap: 'initApp()' },
+                            { name: 'vue', url: '/pages/todos/vue' },
+                            { name: 'alpinejs', url: '/pages/todos/alpinejs' },
+                            { name: 'htmlfirst', url: '/pages/todos/htmlfirst' }
+                        ]
+                    }
+                ],
+                get filteredCategories() {
+                    return this.categories
+                        .map(cat => ({
+                            name: cat.name,
+                            items: cat.items.filter(item => item.name.toLowerCase().includes(this.search.toLowerCase()))
+                        }))
+                        .filter(cat =>
+                            cat.name.toLowerCase().includes(this.search.toLowerCase()) ||
+                            cat.items.length > 0
+                        );
+                }
+            }
+        }
+    </script>
+</nav>
