@@ -37,6 +37,11 @@
             </button>
         </form>
 
+        <!-- 🔍 검색 필터 -->
+        <div class="flex justify-end mb-2">
+            <input id="searchTask" type="text" placeholder="작업 검색..." class="p-2 border rounded w-64" />
+        </div>
+
         <!-- 📋 To-do 리스트 -->
         <div class="overflow-x-auto bg-white rounded-3xl shadow-2xl ring-1 ring-slate-200">
             <table class="w-full text-sm table-auto">
@@ -77,7 +82,7 @@
 
     <script>
         (function() {
-            console.log("Todo App Initialized");
+            let searchQuery = '';
             // State
             let todos = [];
             let todoIdToDelete = null;
@@ -93,6 +98,7 @@
             const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
             const addBtn = document.getElementById('addBtn');
+            const searchTaskInput = document.getElementById('searchTask');
 
             // Initialize
             fetchTodos();
@@ -103,6 +109,10 @@
             cancelDeleteBtn.addEventListener('click', () => closeDeleteModal());
             confirmDeleteBtn.addEventListener('click', deleteConfirmed);
             newTaskInput.addEventListener('input', toggleAddButtonState);
+            searchTaskInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value.toLowerCase();
+                renderTodos();
+            });
 
             // Functions
             async function fetchTodos() {
@@ -131,7 +141,9 @@
                     return;
                 }
 
-                todos.forEach(todo => {
+                const filteredTodos = todos.filter(todo => todo.title.toLowerCase().includes(searchQuery));
+
+                filteredTodos.forEach(todo => {
                     const row = document.createElement('tr');
                     row.className = 'border-t hover:bg-slate-50 transition';
 
