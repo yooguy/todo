@@ -76,8 +76,8 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', initApp);
-        function initApp() {
+        (function() {
+            console.log("Todo App Initialized");
             // State
             let todos = [];
             let todoIdToDelete = null;
@@ -265,7 +265,7 @@
             function toggleAddButtonState() {
                 addBtn.disabled = newTaskInput.value.trim().length === 0;
             }
-        }
+        })();
     </script>
 </section>
 </html>

@@ -23,7 +23,7 @@
         <!-- Content 영역 -->
         <main class="flex-1 px-6 py-6 overflow-auto relative">
             <!-- HTMX 로딩 인디케이터 - 절대 위치로 배치하고 기본적으로 숨김 -->
-            <div id="htmx-indicator" class="htmx-indicator absolute inset-0 bg-white flex items-center justify-center">
+            <div id="htmx-indicator" class="absolute inset-0 bg-white flex items-center justify-center">
                 <div class="flex flex-col items-center">
                     <!-- 로딩 스피너 SVG -->
                     <svg class="animate-spin h-10 w-10 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -35,31 +35,11 @@
             </div>
 
             <!-- 실제 콘텐츠 -->
-            <div id="content" hx-swap-oob="true">
+            <div id="content">
                 <th:block th:replace="~{::content}" />
             </div>
         </main>
     </div>
 </div>
-
-<!-- HTMX 인디케이터용 스타일 -->
-<style>
-    /* 인디케이터 기본 상태 - 숨김 */
-    #htmx-indicator {
-        display: none;
-        z-index: 10;
-    }
-
-    /* HTMX 요청 중 인디케이터 표시 */
-    #htmx-indicator.htmx-request {
-        display: flex;
-    }
-
-    /* hx-target이 요청 중일 때 해당 요소 숨김 */
-    .htmx-request ~ #content,
-    .htmx-requesting ~ #content {
-        display: none;
-    }
-</style>
 </body>
 </html>

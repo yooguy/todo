@@ -38,5 +38,21 @@
 
     <style>
         html { scroll-behavior: smooth; }
+
+        /* 인디케이터 기본 상태 - 숨김 */
+         #htmx-indicator {
+             display: none;
+             z-index: 10;
+         }
+
+        /* HTMX 요청 중 인디케이터 표시 */
+        #htmx-indicator.htmx-request {
+            display: flex;
+        }
+
+        /* hx-target이 요청 중일 때 해당 요소 숨김 */
+        .htmx-request ~ #content {
+            display: none;
+        }
     </style>
 </head>

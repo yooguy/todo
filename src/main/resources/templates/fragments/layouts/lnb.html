@@ -27,7 +27,6 @@
                         <a
                                 :href="item.url"
                                 :hx-get="item.url + '-content'"
-                                :hx-on:afterSwap="item.afterSwap || null"
                                 hx-indicator="#htmx-indicator"
                                 hx-target="main #content"
                                 hx-swap="innerHTML"
@@ -72,7 +71,7 @@
                     {
                         name: 'Todos',
                         items: [
-                            {name: 'vanillajs', url: '/pages/todos/vanillajs', afterSwap: 'initApp()'},
+                            {name: 'vanillajs', url: '/pages/todos/vanillajs'},
                             {name: 'vue', url: '/pages/todos/vue'},
                             {name: 'alpinejs', url: '/pages/todos/alpinejs'},
                             {name: 'htmlfirst', url: '/pages/todos/htmlfirst'}
