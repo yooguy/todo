@@ -11,13 +11,19 @@ class ViewController {
 
     @GetMapping("/common-content")
     fun commonContent(): ModelAndView {
-        Thread.sleep(2000) // ✅ 3초간 지연 (htmx 로딩 테스트용)
+        Thread.sleep(1000) // ✅ 1초간 지연 (htmx 로딩 테스트용)
         return ModelAndView("pages/guides/common :: content")
+    }
+
+    @GetMapping("/design-content")
+    fun designContent(): ModelAndView {
+        Thread.sleep(800) // ✅ 0.8초간 지연 (htmx 로딩 테스트용)
+        return ModelAndView("pages/guides/design :: content")
     }
 
     @GetMapping("/component-content")
     fun componentContent(): ModelAndView {
-        Thread.sleep(2000) // ✅ 3초간 지연 (htmx 로딩 테스트용)
+        Thread.sleep(400) // ✅ 0.4초간 지연 (htmx 로딩 테스트용)
         return ModelAndView("pages/guides/component :: content")
     }
 }
