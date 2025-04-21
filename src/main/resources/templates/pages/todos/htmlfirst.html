@@ -34,6 +34,10 @@
                 ➕ 추가
             </sl-button>
         </form>
+        <!-- 🔍 검색 필터 -->
+        <div class="flex justify-end">
+            <sl-input x-model="searchQuery" placeholder="작업 검색..." class="min-w-[200px]" clearable></sl-input>
+        </div>
 
         <!-- 📋 To-do 리스트 -->
         <div class="overflow-x-auto bg-white rounded-3xl shadow-2xl ring-1 ring-slate-200">
@@ -49,7 +53,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <template x-for="todo in todos" :key="todo.id">
+                <template x-for="todo in filteredTodos" :key="todo.id">
                     <tr class="border-t hover:bg-slate-50 transition">
                         <td class="p-4" :class="todo.completed ? 'line-through text-gray-400' : 'text-slate-800'" x-text="todo.title"></td>
                         <td class="p-4 text-center" x-text="todo.startDate || '-'"></td>
@@ -124,6 +128,11 @@
                 newTask: '',
                 startDate: '',
                 endDate: '',
+                searchQuery: '',
+                get filteredTodos() {
+                    const q = this.searchQuery.trim().toLowerCase();
+                    return this.todos.filter(todo => todo.title.toLowerCase().includes(q));
+                },
                 todoIdToDelete: null,
                 todoToToggle: null,
 
