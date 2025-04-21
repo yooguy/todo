@@ -38,6 +38,11 @@
             </button>
         </form>
 
+        <!-- 🔍 검색 필터 -->
+        <div class="flex justify-end">
+            <input x-model="searchQuery" type="text" placeholder="작업 검색..." class="p-2 border rounded w-64" />
+        </div>
+
         <!-- 📋 To-do 리스트 -->
         <div class="overflow-x-auto bg-white rounded-3xl shadow-2xl ring-1 ring-slate-200">
             <table class="w-full text-sm table-auto">
@@ -53,7 +58,7 @@
                 </thead>
 
                 <tbody>
-                <template x-for="todo in todos" :key="todo.id">
+                <template x-for="todo in filteredTodos" :key="todo.id">
                     <tr class="border-t hover:bg-slate-50 transition">
                         <td class="p-4" :class="todo.completed ? 'line-through text-gray-400' : 'text-slate-800'" x-text="todo.title"></td>
                         <td class="p-4 text-center" x-text="todo.startDate || '-'"></td>
@@ -109,6 +114,14 @@
                 startDate: '',
                 endDate: '',
                 todoIdToDelete: null,
+                searchQuery: '',
+
+                get filteredTodos() {
+                    const q = this.searchQuery.trim().toLowerCase();
+                    return this.todos.filter(todo =>
+                        todo.title.toLowerCase().includes(q)
+                    );
+                },
 
                 async fetchTodos() {
                     const res = await fetch('/api/todos');
