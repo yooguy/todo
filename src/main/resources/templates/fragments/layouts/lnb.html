@@ -30,6 +30,7 @@
                                 :href="item.url"
                                 :hx-get="item.url + '-content'"
                                 :hx-on:afterSwap="item.afterSwap || null"
+                                hx-indicator="#spinner"
                                 class="block px-3 py-1.5 rounded hover:bg-blue-50 hover:text-blue-700 text-sm"
                                 x-text="item.name"
                         ></a>
