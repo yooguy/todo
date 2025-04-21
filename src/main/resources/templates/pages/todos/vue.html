@@ -40,6 +40,11 @@
             </button>
         </form>
 
+        <!-- 🔍 검색 필터 -->
+        <div class="flex justify-end mb-2">
+            <input v-model.trim="searchQuery" placeholder="작업 검색..." class="p-2 border rounded w-64" />
+        </div>
+
         <!-- To-do 리스트 -->
         <div class="overflow-x-auto bg-white rounded-3xl shadow-2xl ring-1 ring-slate-200">
             <table class="w-full text-sm table-auto">
@@ -55,7 +60,7 @@
                 </thead>
 
                 <tbody>
-                <tr v-for="todo in todos" :key="todo.id" class="border-t hover:bg-slate-50 transition">
+                <tr v-for="todo in filteredTodos" :key="todo.id" class="border-t hover:bg-slate-50 transition">
                     <td class="p-4" :class="{ 'line-through text-gray-400': todo.completed }">{{ todo.title }}</td>
                     <td class="p-4 text-center">{{ todo.startDate || '-' }}</td>
                     <td class="p-4 text-center">{{ todo.endDate || '-' }}</td>
@@ -101,7 +106,7 @@
     </div>
 
     <script>
-        const { createApp, ref, onMounted } = Vue;
+        const { createApp, ref, onMounted, computed } = Vue;
 
         createApp({
             setup() {
@@ -110,6 +115,10 @@
                 const startDate = ref('');
                 const endDate = ref('');
                 const todoIdToDelete = ref(null);
+                const searchQuery = ref('');
+                const filteredTodos = computed(() =>
+                    todos.value.filter(todo => todo.title.toLowerCase().includes(searchQuery.value.toLowerCase()))
+                );
 
                 const fetchTodos = async () => {
                     const res = await fetch('/api/todos');
@@ -169,7 +178,7 @@
 
                 onMounted(fetchTodos);
 
-                return { todos, newTask, startDate, endDate, todoIdToDelete, createTodo, updateTodo, deleteConfirmed, downloadExcel };
+                return { todos, newTask, startDate, endDate, todoIdToDelete, createTodo, updateTodo, deleteConfirmed, downloadExcel, searchQuery, filteredTodos };
             }
         }).mount('#app');
     </script>
