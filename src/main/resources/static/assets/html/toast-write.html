@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Toast UI Editor Preview + Save</title>
+
+    <!-- Toast UI Editor CSS + JS -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
+    <!-- Juice for inline style (optional) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/juice/8.0.0/juice.min.js"></script>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 2rem;
+            background: #f9f9f9;
+        }
+        #editor {
+            margin-bottom: 2rem;
+        }
+        #preview, #html-code {
+            padding: 1rem;
+            background: white;
+            border: 1px solid #ccc;
+            margin-bottom: 1rem;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: monospace;
+            font-size: 0.9rem;
+            background: #f3f3f3;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+        input[type="text"] {
+            padding: 0.5rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 0.6rem 1.2rem;
+            margin-right: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-preview { background-color: #ccc; }
+        .btn-save { background-color: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+<h1>📝 Toast UI Editor - Preview & Save</h1>
+
+<!-- 제목 입력 -->
+<input type="text" id="titleInput" placeholder="제목을 입력하세요" />
+
+<!-- 에디터 영역 -->
+<div id="editor"></div>
+
+<!-- 버튼 영역 -->
+<div>
+    <button class="btn-preview" onclick="updatePreview()">미리보기</button>
+    <button class="btn-save" onclick="saveDocument()">저장하기</button>
+</div>
+
+<!-- Preview 출력 -->
+<h2>미리보기 결과</h2>
+<div id="preview"></div>
+
+<!-- HTML 코드 출력 -->
+<h2>HTML 코드</h2>
+<pre id="html-code"></pre>
+
+<script>
+    const editor = new toastui.Editor({
+        el: document.querySelector('#editor'),
+        height: '400px',
+        initialEditType: 'markdown',
+        previewStyle: 'vertical'
+    });
+
+    function updatePreview() {
+        let html = editor.getHTML();
+
+        if (window.juice) {
+            html = juice(html);
+        }
+
+        document.getElementById('preview').innerHTML = html;
+        document.getElementById('html-code').textContent = html;
+    }
+
+    async function saveDocument() {
+        const title = document.getElementById('titleInput').value.trim();
+        let html = editor.getHTML();
+
+        if (!title) {
+            alert('❗ 제목을 입력해주세요.');
+            return;
+        }
+
+        if (window.juice) {
+            html = juice(html);
+        }
+
+        const payload = {
+            title: title,
+            contentHtml: html
+        };
+
+        try {
+            const res = await fetch('/api/docs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) throw new Error('서버 오류');
+
+            const result = await res.json();
+            alert('✅ 저장 완료!');
+            console.log('✅ 저장된 문서:', result);
+        } catch (err) {
+            alert('❌ 저장 실패: ' + err.message);
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -7,6 +7,10 @@
     <link th:href="@{/vendors/shoelace-style/themes/light.css}" rel="stylesheet">
     <link th:href="@{/vendors/tailwind/tailwind.min.css}" rel="stylesheet">
     <link th:href="@{/vendors/air-datepicker/air-datepicker.css}" rel="stylesheet">
+    <link th:href="@{/vendors/toastui/toastui-editor.css}" rel="stylesheet">
+<!--    <link th:href="@{/vendors/toastui/toastui-editor-dark.css}" rel="stylesheet">-->
+<!--    <link th:href="@{/vendors/toastui/toastui-editor-only.css}" rel="stylesheet">-->
+<!--    <link th:href="@{/vendors/toastui/toastui-editor-viewer.css}" rel="stylesheet">-->
 
     <!-- Shoelace 모듈 설정 -->
     <script type="module" th:inline="javascript">
@@ -35,6 +39,12 @@
     <script th:src="@{/vendors/alpinejs/plugins/anchor.min.js}"></script>
     <script th:src="@{/vendors/alpinejs/plugins/sort.min.js}"></script>
     <script th:src="@{/vendors/alpinejs/alpine.min.js}" defer></script>
+
+    <!-- ✅ Toast UI Editor (CDN 버전: 의존성 포함된 UMD 번들) -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.css">
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor-dark.css">
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor-viewer.css">
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js" defer></script>
 
     <style>
         html { scroll-behavior: smooth; }
