@@ -2,36 +2,64 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko" th:fragment="layout" class="h-full bg-gray-50">
 
-<!-- ✅ head 영역: 라이브러리 로딩 -->
+<!-- head 영역: 라이브러리 로딩 -->
 <th:block th:replace="~{fragments/layouts/head :: head(~{::title})}" />
 
 <body class="h-full">
-<!-- ✅ 전체 레이아웃: GNB(상단) + LNB(좌측) + Content(우측) -->
+<!-- 전체 레이아웃: GNB(상단) + LNB(좌측) + Content(우측) -->
 <div class="flex flex-col h-full">
 
-    <!-- ✅ GNB (상단 고정) -->
+    <!-- GNB (상단 고정) -->
     <th:block th:replace="~{fragments/layouts/gnb}" />
 
-    <!-- ✅ GNB 아래 LNB + Content 수평 배치 -->
+    <!-- GNB 아래 LNB + Content 수평 배치 -->
     <div class="flex flex-1 pt-16">
 
-        <!-- ✅ LNB (좌측 고정) -->
+        <!-- LNB (좌측 고정) -->
         <aside class="w-64 bg-white border-r shadow-sm">
             <th:block th:replace="~{fragments/layouts/lnb}" />
         </aside>
 
-        <!-- ✅ Content 영역 -->
-        <main class="flex-1 px-6 py-6 overflow-auto">
-            <div id="content">
+        <!-- Content 영역 -->
+        <main class="flex-1 px-6 py-6 overflow-auto relative">
+            <!-- HTMX 로딩 인디케이터 - 절대 위치로 배치하고 기본적으로 숨김 -->
+            <div id="htmx-indicator" class="htmx-indicator absolute inset-0 bg-white flex items-center justify-center">
+                <div class="flex flex-col items-center">
+                    <!-- 로딩 스피너 SVG -->
+                    <svg class="animate-spin h-10 w-10 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="mt-2 text-sm text-gray-500">로딩 중...</span>
+                </div>
+            </div>
+
+            <!-- 실제 콘텐츠 -->
+            <div id="content" hx-swap-oob="true">
                 <th:block th:replace="~{::content}" />
             </div>
         </main>
-
-        <div id="spinner" class="fixed inset-0 z-50 bg-white/50 flex items-center justify-center hidden">
-            <div class="w-10 h-10 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-
     </div>
 </div>
+
+<!-- HTMX 인디케이터용 스타일 -->
+<style>
+    /* 인디케이터 기본 상태 - 숨김 */
+    #htmx-indicator {
+        display: none;
+        z-index: 10;
+    }
+
+    /* HTMX 요청 중 인디케이터 표시 */
+    #htmx-indicator.htmx-request {
+        display: flex;
+    }
+
+    /* hx-target이 요청 중일 때 해당 요소 숨김 */
+    .htmx-request ~ #content,
+    .htmx-requesting ~ #content {
+        display: none;
+    }
+</style>
 </body>
 </html>
